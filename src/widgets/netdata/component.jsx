@@ -5,7 +5,7 @@ import Block from "components/services/widget/block";
 import useWidgetAPI from "utils/proxy/use-widget-api";
 
 export default function Component({ service }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(); // Re-enable translation
 
   const { widget } = service;
 
@@ -18,16 +18,32 @@ export default function Component({ service }) {
   if (!netdataData) {
     return (
       <Container service={service}>
-        <Block label="netdata.warnings" />
-        <Block label="netdata.criticals" />
+        <Block label={t("netdata.warnings")} />
+        <Block label={t("netdata.criticals")} />
       </Container>
     );
   }
 
+  // Extract required data with camelCase naming
+  const {
+    agents: [
+      {
+        nm: agentName,
+        application: {
+          os: { kernel, kernel_version: kernelVersion },
+          hw: { cpu_architecture: cpuArchitecture, cpu_cores: cpuCores },
+        },
+      },
+    ],
+  } = netdataData;
+
   return (
     <Container service={service}>
-      <Block label="netdata.warnings" value={t("common.number", { value: netdataData.alarms.warning })} />
-      <Block label="netdata.criticals" value={t("common.number", { value: netdataData.alarms.critical })} />
+      <Block label={t("netdata.agentName")} value={agentName} />
+      <Block label={t("netdata.kernel")} value={kernel} />
+      <Block label={t("netdata.kernelVersion")} value={kernelVersion} />
+      <Block label={t("netdata.cpuArchitecture")} value={cpuArchitecture} />
+      <Block label={t("netdata.cpuCores")} value={cpuCores} />
     </Container>
   );
 }
